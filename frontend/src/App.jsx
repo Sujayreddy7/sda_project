@@ -15,6 +15,11 @@ function App() {
   const [loginUsername, setLoginUsername] = useState('')
   const [loginPassword, setLoginPassword] = useState('')
 
+  const [isRegistering, setIsRegistering] = useState(false)
+  const [registerUsername, setRegisterUsername] = useState('')
+  const [registerPassword, setRegisterPassword] = useState('')
+  const [registerEmail, setRegisterEmail] = useState('')
+
   const [isMfaRequired, setIsMfaRequired] = useState(false)
   const [mfaTokenInput, setMfaTokenInput] = useState('')
   const [qrCodeUrl, setQrCodeUrl] = useState('')
@@ -133,6 +138,20 @@ function App() {
       } else {
           setError("Login failed. Check your credentials.");
       }
+    }
+  };
+
+  const handleRegister = async (e) => {
+    e.preventDefault();
+    try {
+      const payload = { username: registerUsername, password: registerPassword, email: registerEmail };
+      await axios.post(`${apiUrl}/api/register/`, payload);
+      setMessage("Registration successful! Please sign in.");
+      setIsRegistering(false);
+      setError('');
+    } catch (err) {
+      console.error("Registration failed:", err);
+      setError(err.response?.data?.error || "Registration failed. Please try again.");
     }
   };
 
@@ -448,42 +467,78 @@ function App() {
             <h1>Todo App</h1>
             <p>Organize your day with elegance</p>
             
-            <form className="auth-form" onSubmit={handleNormalLogin}>
-              <input 
-                type="text" 
-                className="auth-input"
-                value={loginUsername}
-                onChange={e => setLoginUsername(e.target.value)}
-                placeholder="Username"
-                required
-                disabled={isMfaRequired}
-              />
-              <input 
-                type="password" 
-                className="auth-input"
-                value={loginPassword}
-                onChange={e => setLoginPassword(e.target.value)}
-                placeholder="Password"
-                required
-                disabled={isMfaRequired}
-              />
-              {isMfaRequired && (
+            {isRegistering ? (
+              <form className="auth-form" onSubmit={handleRegister}>
                 <input 
                   type="text" 
                   className="auth-input"
-                  value={mfaTokenInput}
-                  onChange={e => setMfaTokenInput(e.target.value)}
-                  placeholder="6-digit MFA Code"
+                  value={registerUsername}
+                  onChange={e => setRegisterUsername(e.target.value)}
+                  placeholder="Username"
                   required
                 />
-              )}
-              <button type="submit" className="auth-btn">
-                {isMfaRequired ? "Verify & Sign In" : "Sign In"}
-              </button>
-              {isMfaRequired && (
-                <button type="button" onClick={() => setIsMfaRequired(false)} style={{background: 'transparent', color: 'var(--text-secondary)', border: 'none', cursor: 'pointer', marginTop: '5px'}}>Cancel MFA Login</button>
-              )}
-            </form>
+                <input 
+                  type="email" 
+                  className="auth-input"
+                  value={registerEmail}
+                  onChange={e => setRegisterEmail(e.target.value)}
+                  placeholder="Email (optional)"
+                />
+                <input 
+                  type="password" 
+                  className="auth-input"
+                  value={registerPassword}
+                  onChange={e => setRegisterPassword(e.target.value)}
+                  placeholder="Password"
+                  required
+                />
+                <button type="submit" className="auth-btn">
+                  Register
+                </button>
+                <button type="button" onClick={() => setIsRegistering(false)} style={{background: 'transparent', color: 'var(--text-secondary)', border: 'none', cursor: 'pointer', marginTop: '5px'}}>
+                  Already have an account? Sign In
+                </button>
+              </form>
+            ) : (
+              <form className="auth-form" onSubmit={handleNormalLogin}>
+                <input 
+                  type="text" 
+                  className="auth-input"
+                  value={loginUsername}
+                  onChange={e => setLoginUsername(e.target.value)}
+                  placeholder="Username"
+                  required
+                  disabled={isMfaRequired}
+                />
+                <input 
+                  type="password" 
+                  className="auth-input"
+                  value={loginPassword}
+                  onChange={e => setLoginPassword(e.target.value)}
+                  placeholder="Password"
+                  required
+                  disabled={isMfaRequired}
+                />
+                {isMfaRequired && (
+                  <input 
+                    type="text" 
+                    className="auth-input"
+                    value={mfaTokenInput}
+                    onChange={e => setMfaTokenInput(e.target.value)}
+                    placeholder="6-digit MFA Code"
+                    required
+                  />
+                )}
+                <button type="submit" className="auth-btn">
+                  {isMfaRequired ? "Verify & Sign In" : "Sign In"}
+                </button>
+                {isMfaRequired ? (
+                  <button type="button" onClick={() => setIsRegistering(false)} style={{background: 'transparent', color: 'var(--text-secondary)', border: 'none', cursor: 'pointer', marginTop: '5px'}}>Cancel MFA Login</button>
+                ) : (
+                  <button type="button" onClick={() => setIsRegistering(true)} style={{background: 'transparent', color: 'var(--text-secondary)', border: 'none', cursor: 'pointer', marginTop: '5px'}}>Need an account? Register</button>
+                )}
+              </form>
+            )}
 
             <div className="auth-divider">
               <span>or continue with</span>

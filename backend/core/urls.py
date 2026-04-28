@@ -21,7 +21,7 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.views import (
     TokenRefreshView,
 )
-from core.views import GoogleLoginView, CustomTokenObtainPairView
+from core.views import GoogleLoginView, CustomTokenObtainPairView, RegisterView
 
 @api_view(['GET'])
 def hello_api(request):
@@ -30,6 +30,7 @@ def hello_api(request):
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/hello/', hello_api, name="hello-api"),
+    path('api/register/', RegisterView.as_view(), name='register'),
     path('api/token/', CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('api/google-login/', GoogleLoginView.as_view(), name='google_login'),
